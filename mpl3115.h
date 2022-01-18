@@ -15,97 +15,63 @@
 
 // ########################################### Macros ##############################################
 
+#define	mpl3115ADDR0				0x60
 
 // ######################################## Enumerations ###########################################
 
-enum {
-	mpl3115R_STATUS,
-	mpl3115R_PRESSURE_MSB,
-	mpl3115R_PRESSURE_CSB,
-	mpl3115R_PRESSURE_LSB,
-	mpl3115R_TEMP_MSB,
-	mpl3115R_TEMP_LSB,
-	mpl3115R_DR_STATUS,
-	mpl3115R_OUT_P_DELTA_MSB,
-	mpl3115R_OUT_P_DELTA_CSB,
-	mpl3115R_OUT_P_DELTA_LSB,
-	mpl3115R_OUT_T_DELTA_MSB,
-	mpl3115R_OUT_T_DELTA_LSB,
-	mpl3115R_WHOAMI,
-	mpl3115R_F_STATUS,
-	mpl3115R_F_DATA,
-	mpl3115R_F_SETUP,
-	mpl3115R_TIME_DLY,				// x10
-	mpl3115R_SYSMOD,
-	mpl3115R_INT_SOURCE,
-	mpl3115R_PT_DATA_CFG,
-	mpl3115R_BAR_IN_MSB,
-	mpl3115R_BAR_IN_LSB,
-	mpl3115R_P_TGT_MSB,
-	mpl3115R_P_TGT_LSB,
-	mpl3115R_T_TGT,
-	mpl3115R_P_WND_MSB,
-	mpl3115R_P_WND_LSB,
-	mpl3115R_T_WND,
-	mpl3115R_P_MIN_MSB,
-	mpl3115R_P_MIN_CSB,
-	mpl3115R_P_MIN_LSB,
-	mpl3115R_T_MIN_MSB,
-	mpl3115R_T_MIN_LSB,			// x20
-	mpl3115R_P_MAX_MSB,
-	mpl3115R_P_MAX_CSB,
-	mpl3115R_P_MAX_LSB,
-	mpl3115R_T_MAX_MSB,
-	mpl3115R_T_MAX_LSB,
-	mpl3115R_CTRL_REG1,
-	mpl3115R_CTRL_REG2,
-	mpl3115R_CTRL_REG3,
-	mpl3115R_CTRL_REG4,
-	mpl3115R_CTRL_REG5,
-	mpl3115R_OFF_P,
-	mpl3115R_OFF_T,
-	mpl3115R_OFF_H,					// MSB
-};
-
-enum {								// Status register bits
-	mpl3115R_STATUS_TDR = 0x02,
-	mpl3115R_STATUS_PDR = 0x04,
-	mpl3115R_STATUS_PTDR = 0x08,
-};
-
-enum {								// PT DATA register bits
-	mpl3115PT_DATA_CFG = 0x13,
-	mpl3115PT_DATA_CFG_TDEFE = 0x01,
-	mpl3115PT_DATA_CFG_PDEFE = 0x02,
-	mpl3115PT_DATA_CFG_DREM = 0x04,
-};
-
-enum {
-	FIFO_DIS = 0, 		// FIFO is disabled (reset value)
-	FIFO_ENAB = 1,		// FIFO contains the most recent samples when overflowed (circular buffer). Oldest sample is discarded to be replaced by new sample
-	FIFO_STOP = 2,		// FIFO stops accepting new samples when overflowed
-	FIFO_UNUSED = 3		// Not used
+enum {								// register numbers
+	mpl3115STATUS,
+	mpl3115PRESSURE_MSB,
+	mpl3115PRESSURE_CSB,
+	mpl3115PRESSURE_LSB,
+	mpl3115TEMP_MSB,
+	mpl3115TEMP_LSB,
+	mpl3115DR_STATUS,
+	mpl3115OUT_P_DELTA_MSB,
+	mpl3115OUT_P_DELTA_CSB,
+	mpl3115OUT_P_DELTA_LSB,
+	mpl3115OUT_T_DELTA_MSB,
+	mpl3115OUT_T_DELTA_LSB,
+	mpl3115WHOAMI,
+	mpl3115F_STATUS,
+	mpl3115F_DATA,
+	mpl3115F_SETUP,
+	mpl3115TIME_DLY,
+	mpl3115SYSMOD,
+	mpl3115INT_SOURCE,
+	mpl3115PT_DATA_CFG,
+	mpl3115BAR_IN_MSB,
+	mpl3115BAR_IN_LSB,
+	mpl3115P_TGT_MSB,
+	mpl3115P_TGT_LSB,
+	mpl3115T_TGT,
+	mpl3115P_WND_MSB,
+	mpl3115P_WND_LSB,
+	mpl3115T_WND,
+	mpl3115P_MIN_MSB,
+	mpl3115P_MIN_CSB,
+	mpl3115P_MIN_LSB,
+	mpl3115T_MIN_MSB,
+	mpl3115T_MIN_LSB,
+	mpl3115P_MAX_MSB,
+	mpl3115P_MAX_CSB,
+	mpl3115P_MAX_LSB,
+	mpl3115T_MAX_MSB,
+	mpl3115T_MAX_LSB,
+	mpl3115CTRL_REG1,
+	mpl3115CTRL_REG2,
+	mpl3115CTRL_REG3,
+	mpl3115CTRL_REG4,
+	mpl3115CTRL_REG5,
+	mpl3115OFF_P,
+	mpl3115OFF_T,
+	mpl3115OFF_H,
 };
 
 // ######################################### Structures ############################################
 
-// See http://www.catb.org/esr/structure-packing/
-// Also http://c0x.coding-guidelines.com/6.7.2.1.html
-
-typedef struct __attribute__((packed)) {
-	int	res1 : 4;					// LSB
-	int fract : 4;
-	int integ : 8;
-} Q8dot4_t;
-
-typedef struct __attribute__((packed)) {
-	int	res1 : 4;					// LSB
-	int fract : 2;
-	int integ : 18;
-} Q18dot2_t;
-
-typedef struct __attribute__((packed)) {
-	uint8_t res2: 1;				// LSB
+typedef struct __attribute__((packed)) {				// DR_STATUS
+	uint8_t res2: 1;
 	uint8_t	TDR : 1;
 	uint8_t	PDR : 1;
 	uint8_t	PTDR : 1;
@@ -115,19 +81,19 @@ typedef struct __attribute__((packed)) {
 	uint8_t	PTOW : 1;
 } mpl3115_dr_status_t;
 
-typedef struct __attribute__((packed)) {
-	uint8_t F_CNT: 6;				// LSB
+typedef struct __attribute__((packed)) {				// F_STATUS
+	uint8_t F_CNT: 6;
 	uint8_t	F_WMRK_FLAG : 1;
 	uint8_t	F_OVF : 1;
 } mpl3115_f_status_t;
 
-typedef struct __attribute__((packed)) {
-	uint8_t F_WMRK : 6;				// LSB
+typedef struct __attribute__((packed)) {				// F_SETUP
+	uint8_t F_WMRK : 6;
 	uint8_t	F_MODE : 2;
 } mpl3115_f_setup_t;
 
-typedef struct __attribute__((packed)) {
-	uint8_t SRC_TCHG : 1;				// LSB
+typedef struct __attribute__((packed)) {				// INT_SOURCE
+	uint8_t SRC_TCHG : 1;
 	uint8_t	SRC_PCHG : 1;
 	uint8_t	SRC_TTH : 1;
 	uint8_t	SRC_PTH : 1;
@@ -137,7 +103,7 @@ typedef struct __attribute__((packed)) {
 	uint8_t	SRC_DRDY : 1;
 } mpl3115_int_source_t;
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed)) {				// PT_DATA_CFG
 	uint8_t TDEFE : 1;
 	uint8_t	PDEFE : 1;
 	uint8_t	DREM : 1;
@@ -161,11 +127,11 @@ typedef struct __attribute__((packed)) {				// CTRL_REG2
 } mpl3115_ctrl_reg2_t;
 
 typedef struct __attribute__((packed)) {				// CTRL_REG3
-	uint8_t PP_OD2 : 1;				// LSB
-	uint8_t	IPOL2 : 1;
+	uint8_t PP_OD2 : 1;				// INT2 0=PushPull 1=OpenDrain
+	uint8_t	IPOL2 : 1;				// INT2 0=ActiveLow 1=ActiveHigh
 	uint8_t	RES2 : 2;
-	uint8_t PP_OD1 : 1;
-	uint8_t IPOL1 : 1;
+	uint8_t PP_OD1 : 1;				// INT1 0=PushPull 1=OpenDrain
+	uint8_t IPOL1 : 1;				// INT1 0=ActiveLow 1=ActiveHigh
 	uint8_t RES1 : 2;
 } mpl3115_ctrl_reg3_t;
 
@@ -192,8 +158,8 @@ typedef struct __attribute__((packed)) {				// CTRL_REG5
 } mpl3115_ctrl_reg5_t;
 
 typedef struct __attribute__((packed)) {
-	uint8_t STATUS;					// LSB
-	union {
+	uint8_t STATUS;					// either DR_STATUS or F_STATUS
+	union {							// OUT_P
 		Q18dot2_t OUT_P;
 		struct __attribute__((packed)) {
 			uint8_t OUT_P_MSB;
@@ -201,49 +167,49 @@ typedef struct __attribute__((packed)) {
 			uint8_t OUT_P_LSB;
 		};
 	};
-	union {
+	union {							// OUT_T
 		Q8dot4_t OUT_T;
 		struct __attribute__((packed)) {
 			uint8_t OUT_T_MSB;
 			uint8_t OUT_T_LSB;
 		};
 	};
-	union {
+	union {							// DR_STATUS
 		mpl3115_dr_status_t dr_status;
 		uint8_t DR_STATUS;
 	};
-	union {
-		Q18dot2_t VAL_DELTA;
+	union {							// OUT_P_DELTA
+		Q18dot2_t OUT_P_DELTA;
 		struct __attribute__((packed)) {
 			uint8_t OUT_P_DELTA_MSB;
 			uint8_t OUT_P_DELTA_CSB;
 			uint8_t OUT_P_DELTA_LSB;
 		};
 	};
-	union {
-		Q8dot4_t TMP_DELTA;
+	union {							// OUT_T_DELTA
+		Q8dot4_t OUT_T_DELTA;
 		struct __attribute__((packed)) {
 			uint8_t OUT_T_DELTA_MSB;
 			uint8_t OUT_T_DELTA_LSB;
 		};
 	};
 	uint8_t WHO_AM_I;
-	union {
+	union {							// F_STATUS
 		mpl3115_f_status_t f_status;
 		uint8_t F_STATUS;
 	};
 	uint8_t F_DATA;
-	union {
+	union {							// F_SETUP
 		mpl3115_f_setup_t f_setup;
 		uint8_t F_SETUP;
 	};
-	uint8_t TIME_DLY;			// x10
+	uint8_t TIME_DLY;
 	uint8_t SYSMOD;
-	union {
+	union {							// INT_SOURCE
 		mpl3115_int_source_t int_source;
 		uint8_t INT_SOURCE;
 	};
-	union {
+	union {							// PT_DATA_CFG
 		mpl3115_pt_data_t pt_data_cfg;
 		uint8_t PT_DATA_CFG;
 	};
@@ -255,7 +221,7 @@ typedef struct __attribute__((packed)) {
 	uint8_t P_WND_MSB;
 	uint8_t P_WND_LSB;
 	uint8_t T_WND;
-	union {
+	union {							// P_MIN
 		Q18dot2_t P_MIN;
 		struct __attribute__((packed)) {
 			uint8_t P_MIN_MSB;
@@ -263,14 +229,14 @@ typedef struct __attribute__((packed)) {
 			uint8_t P_MIN_LSB;
 		};
 	};
-	union {
+	union {							// T_MIN
 		Q8dot4_t T_MIN;
 		struct __attribute__((packed)) {
 			uint8_t T_MIN_MSB;
-			uint8_t T_MIN_LSB;			// x20
+			uint8_t T_MIN_LSB;
 		};
 	};
-	union {
+	union {							// P_MAX
 		Q18dot2_t P_MAX;
 		struct __attribute__((packed)) {
 			uint8_t P_MAX_MSB;
@@ -278,36 +244,36 @@ typedef struct __attribute__((packed)) {
 			uint8_t P_MAX_LSB;
 		};
 	};
-	union {
+	union {							// T_MAX
 		Q8dot4_t T_MAX;
 		struct __attribute__((packed)) {
 			uint8_t T_MAX_MSB;
 			uint8_t T_MAX_LSB;
 		};
 	};
-	union {
-		mpl3115_ctrl_reg1_t CTRL1;
+	union {							// CTRL_REG1
+		mpl3115_ctrl_reg1_t ctrl_reg1;
 		uint8_t CTRL_REG1;
 	};
-	union {
-		mpl3115_ctrl_reg1_t CTRL2;
+	union {							// CTRL_REG2
+		mpl3115_ctrl_reg2_t ctrl_reg2;
 		uint8_t CTRL_REG2;
 	};
-	union {
-		mpl3115_ctrl_reg1_t CTRL3;
+	union {							// CTRL_REG3
+		mpl3115_ctrl_reg3_t ctrl_reg3;
 		uint8_t CTRL_REG3;
 	};
-	union {
-		mpl3115_ctrl_reg1_t CTRL4;
+	union {							// CTRL_REG4
+		mpl3115_ctrl_reg4_t ctrl_reg4;
 		uint8_t CTRL_REG4;
 	};
-	union {
-		mpl3115_ctrl_reg1_t CTRL5;
+	union {							// CTRL_REG5
+		mpl3115_ctrl_reg5_t ctrl_reg5;
 		uint8_t CTRL_REG5;
 	};
 	uint8_t OFF_P;
 	uint8_t OFF_T;
-	uint8_t OFF_H;					// MSB
+	uint8_t OFF_H;
 } mpl3115_reg_t;
 DUMB_STATIC_ASSERT(sizeof(mpl3115_reg_t) == 46);
 
