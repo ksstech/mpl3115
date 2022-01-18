@@ -81,7 +81,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 
 #elif (mpl3115I2C_LOGIC == 2)							// clock stretching
 
-	error "Not supported"
+	#error "Not supported"
 
 #elif (mpl3115I2C_LOGIC == 3)							// 3 stages
 
@@ -156,8 +156,8 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
  * @return	erSUCCESS if supported device was detected, if not erFAILURE
  */
 int	mpl3115Identify(i2c_di_t * psI2C_DI) {
-	psI2C_DI->Delay	= 50;
-	psI2C_DI->TOuS = 400;
+	psI2C_DI->TRXmS	= 50;
+	psI2C_DI->CLKuS = 400;
 	psI2C_DI->Test = 1;
 	sMPL3115.psI2C = psI2C_DI;
 	int iRV = mpl3115ReadReg(mpl3115WHOAMI, &sMPL3115.Reg.WHO_AM_I, 1);
