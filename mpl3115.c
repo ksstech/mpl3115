@@ -132,7 +132,7 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	IF_PRINT(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1, int) || OUTSIDE(0, os, 7, int) || OUTSIDE(0, step, 15, int))
-		ERR_RETURN("Invalid Resolution or Heater value", erSCRIPT_INV_PARA);
+		ERR_RETURN("Invalid Resolution or Heater value", erINVALID_PARA);
 
 	sMPL3115.Reg.ctrl_reg1.ALT = mode;
 	sMPL3115.Reg.ctrl_reg1.OS = os;
