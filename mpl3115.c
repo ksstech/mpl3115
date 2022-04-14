@@ -63,7 +63,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	int iRV = mpl3115ReadReg(mpl3115STATUS, (uint8_t *) &sMPL3115.Reg, 6);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-'B ]\n", 6, &sMPL3115.Reg);
+	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
@@ -86,7 +86,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
  */
  void mpl3115ReadCB(void * pvPara) {
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-'B ]\n", 6, &sMPL3115.Reg);
+	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
