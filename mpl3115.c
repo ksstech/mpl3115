@@ -132,16 +132,14 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	IF_P(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1, int) || OUTSIDE(0, os, 7, int) || OUTSIDE(0, step, 15, int))
-		ERR_RETURN("Invalid Resolution or Heater value", erINVALID_PARA);
+		RETURN_MX("Invalid Resolution or Heater value", erINVALID_PARA);
 
 	sMPL3115.Reg.ctrl_reg1.ALT = mode;
 	sMPL3115.Reg.ctrl_reg1.OS = os;
 	int iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
-	if (iRV == erSUCCESS) {
-		sMPL3115.Reg.ctrl_reg2.ST = step ;
-		iRV = mpl3115WriteReg(mpl3115CTRL_REG2, sMPL3115.Reg.CTRL_REG2);
-	}
-	return iRV;
+	IF_RETURN_X(iRV != erSUCCESS, iRV);
+	sMPL3115.Reg.ctrl_reg2.ST = step ;
+	return mpl3115WriteReg(mpl3115CTRL_REG2, sMPL3115.Reg.CTRL_REG2);
 }
 
 // ################### Identification, Diagnostics & Configuration functions #######################
