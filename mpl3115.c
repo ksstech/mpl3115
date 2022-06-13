@@ -63,7 +63,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	int iRV = mpl3115ReadReg(mpl3115STATUS, (uint8_t *) &sMPL3115.Reg, 6);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\n", 6, &sMPL3115.Reg);
+	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\r\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
@@ -86,7 +86,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
  */
  void mpl3115ReadCB(void * pvPara) {
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\n", 6, &sMPL3115.Reg);
+	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\r\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
@@ -129,7 +129,7 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	int os = psR->para.x32[AI][1].i32;					// OverSampling 0 = 2^0 ... 2^7 ie 128
 	int step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
 
-	IF_P(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\n", Xcur, Xmax, mode, os, step);
+	IF_P(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1, int) || OUTSIDE(0, os, 7, int) || OUTSIDE(0, step, 15, int))
 		RETURN_MX("Invalid Resolution or Heater value", erINVALID_PARA);
@@ -214,65 +214,65 @@ int	mpl3115Diags(i2c_di_t * psI2C_DI) { return erSUCCESS; }
 void mpl3115ReportAll(void) {
 	halI2C_DeviceReport(sMPL3115.psI2C);
 	mpl3115ReadReg(mpl3115DR_STATUS, (uint8_t *) &sMPL3115.Reg.DR_STATUS, 1);
-	P("\tDR_STATUS: 0x%02X  PTOW=%d  POW=%d  TOW=%d  PTDR=%d  PDR=%d  TDR=%d\n", sMPL3115.Reg.DR_STATUS,
+	P("\tDR_STATUS: 0x%02X  PTOW=%d  POW=%d  TOW=%d  PTDR=%d  PDR=%d  TDR=%d\r\n", sMPL3115.Reg.DR_STATUS,
 		sMPL3115.Reg.dr_status.PTOW, sMPL3115.Reg.dr_status.POW, sMPL3115.Reg.dr_status.TOW,
 		sMPL3115.Reg.dr_status.PTDR, sMPL3115.Reg.dr_status.PDR, sMPL3115.Reg.dr_status.TDR);
 
 	mpl3115ReadReg(mpl3115OUT_P_DELTA_MSB, (uint8_t *) &sMPL3115.Reg.OUT_P_DELTA_MSB, 5);
-	P("\tOUT_P_D=%f  OUT_T_D=%f\n",
+	P("\tOUT_P_D=%f  OUT_T_D=%f\r\n",
 		(float) (sMPL3115.Reg.OUT_P_DELTA_MSB << 16 | sMPL3115.Reg.OUT_P_DELTA_CSB << 8 | sMPL3115.Reg.OUT_P_DELTA_LSB) / 64.0,
 		(float) (sMPL3115.Reg.OUT_T_DELTA_MSB << 8 | sMPL3115.Reg.OUT_T_DELTA_LSB) / 256.0);
 
 	mpl3115ReadReg(mpl3115F_STATUS, (uint8_t *) &sMPL3115.Reg.F_STATUS, 1);
-	P("\tF_STATUS: 0x%02X  OVF=%d  WMRK=%d  CNT=%d\n", sMPL3115.Reg.F_STATUS,
+	P("\tF_STATUS: 0x%02X  OVF=%d  WMRK=%d  CNT=%d\r\n", sMPL3115.Reg.F_STATUS,
 		sMPL3115.Reg.f_status.F_OVF, sMPL3115.Reg.f_status.F_WMRK_FLAG, sMPL3115.Reg.f_status.F_CNT);
 
 	mpl3115ReadReg(mpl3115F_SETUP, (uint8_t *) &sMPL3115.Reg.F_SETUP, 1);
-	P("\tF_SETUP: 0x%02X  MODE=%d  WMRK=%d\n", sMPL3115.Reg.F_SETUP,
+	P("\tF_SETUP: 0x%02X  MODE=%d  WMRK=%d\r\n", sMPL3115.Reg.F_SETUP,
 		sMPL3115.Reg.f_setup.F_MODE, sMPL3115.Reg.f_setup.F_WMRK);
 
 	mpl3115ReadReg(mpl3115TIME_DLY, (uint8_t *) &sMPL3115.Reg.TIME_DLY, 30);
-	P("\tTIME_DLY: %d\n", sMPL3115.Reg.TIME_DLY);
-	P("\tSYSMOD: %sabled\n", sMPL3115.Reg.SYSMOD ? "EN" : "DIS");
+	P("\tTIME_DLY: %d\r\n", sMPL3115.Reg.TIME_DLY);
+	P("\tSYSMOD: %sabled\r\n", sMPL3115.Reg.SYSMOD ? "EN" : "DIS");
 
-	P("\tINT_SOURCE: 0x%02X\n", sMPL3115.Reg.INT_SOURCE);
-	P("\tPT_DATA_CFG: 0x%02X  DREM=%d  PDEFE=%d  TDEFE=%d\n", sMPL3115.Reg.PT_DATA_CFG,
+	P("\tINT_SOURCE: 0x%02X\r\n", sMPL3115.Reg.INT_SOURCE);
+	P("\tPT_DATA_CFG: 0x%02X  DREM=%d  PDEFE=%d  TDEFE=%d\r\n", sMPL3115.Reg.PT_DATA_CFG,
 		sMPL3115.Reg.pt_data_cfg.DREM, sMPL3115.Reg.pt_data_cfg.PDEFE, sMPL3115.Reg.pt_data_cfg.TDEFE);
 	uint16_t U16 = (sMPL3115.Reg.BAR_IN_MSB << 8) | sMPL3115.Reg.BAR_IN_LSB;
-	P("\tBAR_IN: 0x%04X (%u)\n", U16, U16 << 1);
+	P("\tBAR_IN: 0x%04X (%u)\r\n", U16, U16 << 1);
 
 	x32_t X32 ;
 	if (sMPL3115.Reg.ctrl_reg1.ALT)
 		X32.f32 = (float) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
 	else
 		X32.f32 = (int16_t) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
-	P("\tP_TGT=%f(%s)  T_TGT=%d(degC)\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_TGT);
+	P("\tP_TGT=%f(%s)  T_TGT=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_TGT);
 
 	if (sMPL3115.Reg.ctrl_reg1.ALT)
 		X32.f32 = (float) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
 	else
 		X32.f32 = (int16_t) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
-	P("\tP_WND=%f(%s)  T_WND=%d(degC)\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_WND);
+	P("\tP_WND=%f(%s)  T_WND=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_WND);
 
-	P("\tP_MIN=%f  T_MIN=%f\n",
+	P("\tP_MIN=%f  T_MIN=%f\r\n",
 		(float) (sMPL3115.Reg.P_MIN_MSB << 16 | sMPL3115.Reg.P_MIN_CSB << 8 | sMPL3115.Reg.P_MIN_LSB) / 64.0,
 		(float) (sMPL3115.Reg.T_MIN_MSB << 8 | sMPL3115.Reg.T_MIN_LSB) / 256.0);
 
-	P("\tP_MAX=%f  T_MAX=%f\n",
+	P("\tP_MAX=%f  T_MAX=%f\r\n",
 		(float) (sMPL3115.Reg.P_MAX_MSB << 16 | sMPL3115.Reg.P_MAX_CSB << 8 | sMPL3115.Reg.P_MAX_LSB) / 64.0,
 		(float) (sMPL3115.Reg.T_MAX_MSB << 8 | sMPL3115.Reg.T_MAX_LSB) / 256.0);
 
-	P("\tCTRL_REG1: 0x%02X  ALT=%d  OS=%d  RST=%d  OST=%d  SBYB=%d\n", sMPL3115.Reg.CTRL_REG1,
+	P("\tCTRL_REG1: 0x%02X  ALT=%d  OS=%d  RST=%d  OST=%d  SBYB=%d\r\n", sMPL3115.Reg.CTRL_REG1,
 		sMPL3115.Reg.ctrl_reg1.ALT, sMPL3115.Reg.ctrl_reg1.OS, sMPL3115.Reg.ctrl_reg1.RST,
 		sMPL3115.Reg.ctrl_reg1.OST, sMPL3115.Reg.ctrl_reg1.SBYB);
-	P("\tCTRL_REG2: 0x%02X  LOAD_OUTPUT=%d  ALARM_SEL=%d  ST=%d\n", sMPL3115.Reg.CTRL_REG2,
+	P("\tCTRL_REG2: 0x%02X  LOAD_OUTPUT=%d  ALARM_SEL=%d  ST=%d\r\n", sMPL3115.Reg.CTRL_REG2,
 		sMPL3115.Reg.ctrl_reg2.LOAD_OUTPUT, sMPL3115.Reg.ctrl_reg2.ALARM_SEL, sMPL3115.Reg.ctrl_reg2.ST);
-	P("\tCTRL_REG3: 0x%02X  IPOL1=%d  PP_OD1=%d  IPOL2=%d  PP_OD2=%d\n", sMPL3115.Reg.CTRL_REG3,
+	P("\tCTRL_REG3: 0x%02X  IPOL1=%d  PP_OD1=%d  IPOL2=%d  PP_OD2=%d\r\n", sMPL3115.Reg.CTRL_REG3,
 		sMPL3115.Reg.ctrl_reg3.IPOL1, sMPL3115.Reg.ctrl_reg3.PP_OD1,
 		sMPL3115.Reg.ctrl_reg3.IPOL2, sMPL3115.Reg.ctrl_reg3.PP_OD2);
-	P("\tCTRL_REG4=0x%02X   CTRL_REG5=0x%02X\n",
+	P("\tCTRL_REG4=0x%02X   CTRL_REG5=0x%02X\r\n",
 		sMPL3115.Reg.CTRL_REG4, sMPL3115.Reg.CTRL_REG5);
 
-	P("\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\n",
+	P("\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\r\n",
 		sMPL3115.Reg.OFF_P, sMPL3115.Reg.OFF_T, sMPL3115.Reg.OFF_H);
 }
