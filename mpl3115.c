@@ -1,10 +1,9 @@
 /*
- * Copyright 2022 Andre M. Maree/KSS Technologies (Pty) Ltd.
+ * mpl3115.c
+ * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
 #include	"mpl3115.h"
-#include	<string.h>
-
 #include	"hal_variables.h"
 #include	"endpoints.h"
 #include	"options.h"
@@ -13,10 +12,7 @@
 #include	"systiming.h"					// timing debugging
 #include	"x_errors_events.h"
 
-#define	debugFLAG					0xF001
-
-#define	debugCONFIG					(debugFLAG & 0x0001)
-#define	debugCONVERT				(debugFLAG & 0x0002)
+#define	debugFLAG					0xF000
 
 #define	debugTIMING					(debugFLAG_GLOBAL & debugFLAG & 0x1000)
 #define	debugTRACK					(debugFLAG_GLOBAL & debugFLAG & 0x2000)
@@ -195,9 +191,9 @@ int	mpl3115Config(i2c_di_t * psI2C_DI) {
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_TMP;
 
-#if (mpl3115I2C_LOGIC == 3)
+	#if (mpl3115I2C_LOGIC == 3)
 	sMPL3115.timer = xTimerCreate("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr);
-#endif
+	#endif
 	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
 	return erSUCCESS ;
 }
