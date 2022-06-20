@@ -63,7 +63,6 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	int iRV = mpl3115ReadReg(mpl3115STATUS, (u8_t *) &sMPL3115.Reg, 6);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\r\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
@@ -86,7 +85,6 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
  */
  void mpl3115ReadCB(void * pvPara) {
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\r\n", 6, &sMPL3115.Reg);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
@@ -129,8 +127,6 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	s32_t os = psR->para.x32[AI][1].i32;				// OverSampling 0 = 2^0 ... 2^7 ie 128
 	s32_t step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
 	IF_P(debugTRACK && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
-
-	IF_P(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1, s32_t) || OUTSIDE(0, os, 7, s32_t) || OUTSIDE(0, step, 15, s32_t))
 		RETURN_MX("Invalid Resolution or Heater value", erINVALID_PARA);
