@@ -44,13 +44,13 @@ mpl3115_t sMPL3115 = { 0 };
 
 // #################################### Local ONLY functions #######################################
 
-int mpl3115ReadReg(uint8_t Reg, uint8_t * pRxBuf, size_t RxLen) {
+int mpl3115ReadReg(u8_t Reg, u8_t * pRxBuf, size_t RxLen) {
 	return halI2C_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg),
 			pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
-int mpl3115WriteReg(uint8_t reg, uint8_t val) {
-	uint8_t u8Buf[2] = { reg, val };
+int mpl3115WriteReg(u8_t reg, u8_t val) {
+	u8_t u8Buf[2] = { reg, val };
 	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
@@ -61,7 +61,7 @@ int mpl3115WriteReg(uint8_t reg, uint8_t val) {
  */
 int	mpl3115ReadHdlr(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-	int iRV = mpl3115ReadReg(mpl3115STATUS, (uint8_t *) &sMPL3115.Reg, 6);
+	int iRV = mpl3115ReadReg(mpl3115STATUS, (u8_t *) &sMPL3115.Reg, 6);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 	IF_P(debugCONVERT, "mpl3115  [ %-`B ]\r\n", 6, &sMPL3115.Reg);
 	x64_t X64;
@@ -112,7 +112,7 @@ void mpl3115TimerHdlr(TimerHandle_t xTimer) {
 int	mpl3115ReadHdlr(epw_t * psEWP) {
 	vTimerSetTimerID(sMPL3115.timer, (void *) psEWP);
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-	uint8_t Cmd = mpl3115STATUS;
+	u8_t Cmd = mpl3115STATUS;
 	// delay not really required if sampling interval >= 1000mSec
 	uint32_t Dly = mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS] ;
 	return halI2C_Queue(sMPL3115.psI2C, i2cWT, &Cmd, sizeof(Cmd),
@@ -124,14 +124,15 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 
 int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	// mode /mpl3115 idx mode os Tstep [fifo] [event]
-	uint8_t	AI = psR->ActIdx;
-	int mode = psR->para.x32[AI][0].i32;
-	int os = psR->para.x32[AI][1].i32;					// OverSampling 0 = 2^0 ... 2^7 ie 128
-	int step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
+	u8_t AI = psR->ActIdx;
+	s32_t mode = psR->para.x32[AI][0].i32;
+	s32_t os = psR->para.x32[AI][1].i32;				// OverSampling 0 = 2^0 ... 2^7 ie 128
+	s32_t step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
+	IF_P(debugTRACK && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
 
 	IF_P(debugCONFIG && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
 
-	if (OUTSIDE(0, mode, 1, int) || OUTSIDE(0, os, 7, int) || OUTSIDE(0, step, 15, int))
+	if (OUTSIDE(0, mode, 1, s32_t) || OUTSIDE(0, os, 7, s32_t) || OUTSIDE(0, step, 15, s32_t))
 		RETURN_MX("Invalid Resolution or Heater value", erINVALID_PARA);
 
 	sMPL3115.Reg.ctrl_reg1.ALT = mode;
@@ -213,25 +214,25 @@ int	mpl3115Diags(i2c_di_t * psI2C_DI) { return erSUCCESS; }
 
 void mpl3115ReportAll(void) {
 	halI2C_DeviceReport(sMPL3115.psI2C);
-	mpl3115ReadReg(mpl3115DR_STATUS, (uint8_t *) &sMPL3115.Reg.DR_STATUS, 1);
+	mpl3115ReadReg(mpl3115DR_STATUS, (u8_t *) &sMPL3115.Reg.DR_STATUS, 1);
 	P("\tDR_STATUS: 0x%02X  PTOW=%d  POW=%d  TOW=%d  PTDR=%d  PDR=%d  TDR=%d\r\n", sMPL3115.Reg.DR_STATUS,
 		sMPL3115.Reg.dr_status.PTOW, sMPL3115.Reg.dr_status.POW, sMPL3115.Reg.dr_status.TOW,
 		sMPL3115.Reg.dr_status.PTDR, sMPL3115.Reg.dr_status.PDR, sMPL3115.Reg.dr_status.TDR);
 
-	mpl3115ReadReg(mpl3115OUT_P_DELTA_MSB, (uint8_t *) &sMPL3115.Reg.OUT_P_DELTA_MSB, 5);
+	mpl3115ReadReg(mpl3115OUT_P_DELTA_MSB, (u8_t *) &sMPL3115.Reg.OUT_P_DELTA_MSB, 5);
 	P("\tOUT_P_D=%f  OUT_T_D=%f\r\n",
 		(float) (sMPL3115.Reg.OUT_P_DELTA_MSB << 16 | sMPL3115.Reg.OUT_P_DELTA_CSB << 8 | sMPL3115.Reg.OUT_P_DELTA_LSB) / 64.0,
 		(float) (sMPL3115.Reg.OUT_T_DELTA_MSB << 8 | sMPL3115.Reg.OUT_T_DELTA_LSB) / 256.0);
 
-	mpl3115ReadReg(mpl3115F_STATUS, (uint8_t *) &sMPL3115.Reg.F_STATUS, 1);
+	mpl3115ReadReg(mpl3115F_STATUS, (u8_t *) &sMPL3115.Reg.F_STATUS, 1);
 	P("\tF_STATUS: 0x%02X  OVF=%d  WMRK=%d  CNT=%d\r\n", sMPL3115.Reg.F_STATUS,
 		sMPL3115.Reg.f_status.F_OVF, sMPL3115.Reg.f_status.F_WMRK_FLAG, sMPL3115.Reg.f_status.F_CNT);
 
-	mpl3115ReadReg(mpl3115F_SETUP, (uint8_t *) &sMPL3115.Reg.F_SETUP, 1);
+	mpl3115ReadReg(mpl3115F_SETUP, (u8_t *) &sMPL3115.Reg.F_SETUP, 1);
 	P("\tF_SETUP: 0x%02X  MODE=%d  WMRK=%d\r\n", sMPL3115.Reg.F_SETUP,
 		sMPL3115.Reg.f_setup.F_MODE, sMPL3115.Reg.f_setup.F_WMRK);
 
-	mpl3115ReadReg(mpl3115TIME_DLY, (uint8_t *) &sMPL3115.Reg.TIME_DLY, 30);
+	mpl3115ReadReg(mpl3115TIME_DLY, (u8_t *) &sMPL3115.Reg.TIME_DLY, 30);
 	P("\tTIME_DLY: %d\r\n", sMPL3115.Reg.TIME_DLY);
 	P("\tSYSMOD: %sabled\r\n", sMPL3115.Reg.SYSMOD ? "EN" : "DIS");
 
