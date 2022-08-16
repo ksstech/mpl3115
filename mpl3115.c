@@ -62,10 +62,10 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
-	vCV_SetValue(&table_work[URI_MPL3115_VAL].var, X64);
+	vCV_SetValueRaw(&table_work[URI_MPL3115_VAL].var, X64);
 	// convert& update the temperature sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_T_MSB << 8 | sMPL3115.Reg.OUT_T_LSB) / 256.0;
-	vCV_SetValue(&table_work[URI_MPL3115_TMP].var, X64);
+	vCV_SetValueRaw(&table_work[URI_MPL3115_TMP].var, X64);
 	return iRV;
 }
 
@@ -84,10 +84,10 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
-	vCV_SetValue(&table_work[URI_MPL3115_VAL].var, X64);
+	vCV_SetValueRaw(&table_work[URI_MPL3115_VAL].var, X64);
 	// convert& update the temperature sensor
 	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_T_MSB << 8 | sMPL3115.Reg.OUT_T_LSB) / 256.0;
-	vCV_SetValue(&table_work[URI_MPL3115_TMP].var, X64);
+	vCV_SetValueRaw(&table_work[URI_MPL3115_TMP].var, X64);
 }
 
 /**
@@ -125,7 +125,7 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	IF_P(debugTRACK && ioB1GET(ioMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1) || OUTSIDE(0, os, 7) || OUTSIDE(0, step, 15))
-		RETURN_MX("Invalid Resolution or Heater value", erINVALID_PARA);
+		RETURN_MX("Invalid Resolution or Heater value", erINV_PARA);
 
 	sMPL3115.Reg.ctrl_reg1.ALT = mode;
 	sMPL3115.Reg.ctrl_reg1.OS = os;
@@ -157,19 +157,13 @@ int	mpl3115Identify(i2c_di_t * psI2C_DI) {
 }
 
 void mpl3115ConfigALT(epw_t * psEWP) {
-	psEWP->var.def.cv.vc = 1;
-	psEWP->var.def.cv.vs = vs32B;
-	psEWP->var.def.cv.vf = vfFXX;
-	psEWP->var.def.cv.vt = vtVALUE;
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_VAL;
 }
 
 void mpl3115ConfigBMP(epw_t * psEWP) {
-	psEWP->var.def.cv.vc = 1;
-	psEWP->var.def.cv.vs = vs32B;
-	psEWP->var.def.cv.vf = vfFXX;
-	psEWP->var.def.cv.vt = vtVALUE;
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_VAL;
 }
@@ -183,11 +177,9 @@ int	mpl3115Config(i2c_di_t * psI2C_DI) {
 	mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
 
 	mpl3115ConfigALT(&table_work[URI_MPL3115_VAL]);		// default mode on reset
+
 	epw_t * psEWP = &table_work[URI_MPL3115_TMP];
-	psEWP->var.def.cv.vc = 1;
-	psEWP->var.def.cv.vs = vs32B;
-	psEWP->var.def.cv.vf = vfFXX;
-	psEWP->var.def.cv.vt = vtVALUE;
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_TMP;
 
