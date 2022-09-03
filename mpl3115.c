@@ -184,7 +184,7 @@ int	mpl3115Config(i2c_di_t * psI2C_DI) {
 	psEWP->uri = URI_MPL3115_TMP;
 
 	#if (mpl3115I2C_LOGIC == 3)
-	sMPL3115.timer = xTimerCreate("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr);
+	sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
 	#endif
 	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
 	return erSUCCESS ;

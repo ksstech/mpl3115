@@ -280,9 +280,10 @@ DUMB_STATIC_ASSERT(sizeof(mpl3115_reg_t) == 46);
 typedef struct __attribute__((packed)) {				// SI70006/13/14/20/xx TMP & RH sensors
 	i2c_di_t *		psI2C;			// 4 bytes
 	SemaphoreHandle_t mux;
-#if (mpl3115I2C_LOGIC == 3)
-	TimerHandle_t	timer;
-#endif
+	#if (mpl3115I2C_LOGIC == 3)
+	TimerHandle_t th;
+	StaticTimer_t ts;
+	#endif
 	union {
 		mpl3115_reg_t Reg;
 		uint8_t u8Buf[sizeof(mpl3115_reg_t)];
@@ -290,7 +291,7 @@ typedef struct __attribute__((packed)) {				// SI70006/13/14/20/xx TMP & RH sens
 	uint8_t	spare[2];
 } mpl3115_t;
 #if (mpl3115I2C_LOGIC == 3)
-	DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == 60);
+	DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == 104);
 #else
 	DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == 56);
 #endif
