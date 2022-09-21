@@ -122,7 +122,7 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	s32_t mode = psR->para.x32[AI][0].i32;
 	s32_t os = psR->para.x32[AI][1].i32;				// OverSampling 0 = 2^0 ... 2^7 ie 128
 	s32_t step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
-	IF_P(debugTRACK && ioB1GET(dbgMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%d os=%d step=%d\r\n", Xcur, Xmax, mode, os, step);
+	IF_P(debugTRACK && ioB1GET(dbgMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%ld os=%ld step=%ld\r\n", Xcur, Xmax, mode, os, step);
 
 	if (OUTSIDE(0, mode, 1) || OUTSIDE(0, os, 7) || OUTSIDE(0, step, 15))
 		RETURN_MX("Invalid Resolution or Heater value", erINV_PARA);
