@@ -3,10 +3,9 @@
  * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
-#include	"mpl3115.h"
 #include	"hal_variables.h"
+#include	"mpl3115.h"
 #include	"endpoints.h"
-#include	"options.h"
 #include	"printfx.h"
 #include	"syslog.h"
 #include	"systiming.h"					// timing debugging
