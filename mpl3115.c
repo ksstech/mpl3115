@@ -3,13 +3,15 @@
  * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
-#include	"hal_variables.h"
-#include	"mpl3115.h"
-#include	"endpoints.h"
-#include	"printfx.h"
-#include	"syslog.h"
-#include	"systiming.h"					// timing debugging
-#include	"x_errors_events.h"
+#include "hal_variables.h"
+#if (halHAS_MPL3115 > 0)
+#include "mpl3115.h"
+#include "endpoints.h"
+#include "printfx.h"
+#include "rules.h"
+#include "syslog.h"
+#include "systiming.h"					// timing debugging
+#include "x_errors_events.h"
 
 #define	debugFLAG					0xF000
 
@@ -260,3 +262,4 @@ void mpl3115ReportAll(void) {
 	P("\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\r\n",
 		sMPL3115.Reg.OFF_P, sMPL3115.Reg.OFF_T, sMPL3115.Reg.OFF_H);
 }
+#endif
