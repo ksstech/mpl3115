@@ -3,7 +3,7 @@
  * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
-#include "hal_variables.h"
+#include "main.h"
 #if (halHAS_MPL3115 > 0)
 #include "mpl3115.h"
 #include "endpoints.h"
