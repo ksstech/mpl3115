@@ -22,11 +22,6 @@
 
 // ############################################# Macros ############################################
 
-#define	mpl3115I2C_LOGIC			1					// 1=delay, 2=stretch, 3=stages
-
-// #################################### SI7006/13/20/21 Addresses ##################################
-
-#define	MPL3115_T_SNS				1000
 
 // ################################ Forward function declaration ###################################
 
@@ -80,7 +75,7 @@ int	mpl3115ReadHdlr(epw_t * psEWP) {
  * @brief	step 3: sample read, convert  store
  * @param 	Expired timer handle
  */
- void mpl3115ReadCB(void * pvPara) {
+void mpl3115ReadCB(void * pvPara) {
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 	x64_t X64;
 	// Convert & update pressure/altitude sensor
