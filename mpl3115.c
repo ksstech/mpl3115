@@ -261,5 +261,8 @@ void mpl3115ReportAll(void) {
 
 	P("\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\r\n",
 		sMPL3115.Reg.OFF_P, sMPL3115.Reg.OFF_T, sMPL3115.Reg.OFF_H);
+	#if (mpl3115I2C_LOGIC == 3)
+	xRtosReportTimer(NULL, sMPL3115.th);
+	#endif
 }
 #endif
