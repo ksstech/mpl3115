@@ -39,13 +39,13 @@ mpl3115_t sMPL3115 = { 0 };
 // #################################### Local ONLY functions #######################################
 
 int mpl3115ReadReg(u8_t Reg, u8_t * pRxBuf, size_t RxLen) {
-	return halI2C_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg),
+	return halI2CM_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg),
 			pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
 int mpl3115WriteReg(u8_t reg, u8_t val) {
 	u8_t u8Buf[2] = { reg, val };
-	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	return halI2CM_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
 #if (mpl3115I2C_LOGIC == 1)								// 1 step no wait
@@ -53,7 +53,7 @@ int mpl3115WriteReg(u8_t reg, u8_t val) {
  * @brief	simply read current values, expected it to be new/valid
  * @param 	pointer to endpoint to be read
  */
-int	mpl3115ReadHdlr(epw_t * psEWP) {
+int	mpl3115Sense(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	int iRV = mpl3115ReadReg(mpl3115STATUS, (u8_t *) &sMPL3115.Reg, 6);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
@@ -93,7 +93,7 @@ void mpl3115ReadCB(void * pvPara) {
  * @param 	(expired) timer handle
  */
 void mpl3115TimerHdlr(TimerHandle_t xTimer) {
-	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf),
+	halI2CM_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf),
 			(i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
 }
 
@@ -101,13 +101,13 @@ void mpl3115TimerHdlr(TimerHandle_t xTimer) {
  * @brief	step 1: trigger A->D conversion with delay
  * @param 	pointer to endpoint to be read
  */
-int	mpl3115ReadHdlr(epw_t * psEWP) {
+int	mpl3115Sense(epw_t * psEWP) {
 	vTimerSetTimerID(sMPL3115.timer, (void *) psEWP);
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	u8_t Cmd = mpl3115STATUS;
 	// delay not really required if sampling interval >= 1000mSec
 	uint32_t Dly = mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS] ;
-	return halI2C_Queue(sMPL3115.psI2C, i2cWT, &Cmd, sizeof(Cmd),
+	return halI2CM_Queue(sMPL3115.psI2C, i2cWT, &Cmd, sizeof(Cmd),
 			&sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) sMPL3115.timer, (i2cq_p2_t) (uint32_t) Dly);
 }
 #endif

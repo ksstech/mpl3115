@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 #include "endpoints.h"
-#include "hal_i2c.h"
+#include "hal_i2cm.h"
 
 #ifdef __cplusplus
 	extern "C" {
@@ -324,7 +324,7 @@ int	mpl3115ReConfig(i2c_di_t * psI2C_DI);
 int	mpl3115Diags(i2c_di_t * psI2C_DI);
 
 struct epw_t ;
-int	mpl3115ReadHdlr(epw_t * psEWP);
+int	mpl3115Sense(epw_t * psEWP);
 
 #ifdef __cplusplus
 	}
