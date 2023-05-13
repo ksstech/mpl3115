@@ -155,13 +155,13 @@ int	mpl3115Identify(i2c_di_t * psI2C_DI) {
 }
 
 void mpl3115ConfigALT(epw_t * psEWP) {
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_VAL;
 }
 
 void mpl3115ConfigBMP(epw_t * psEWP) {
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_VAL;
 }
@@ -177,7 +177,7 @@ int	mpl3115Config(i2c_di_t * psI2C_DI) {
 	mpl3115ConfigALT(&table_work[URI_MPL3115_VAL]);		// default mode on reset
 
 	epw_t * psEWP = &table_work[URI_MPL3115_TMP];
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1);
+	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_TMP;
 
