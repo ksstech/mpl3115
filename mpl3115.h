@@ -305,25 +305,25 @@ typedef struct __attribute__((packed)) {				// SI70006/13/14/20/xx TMP & RH sens
 
 // ###################################### Public functions #########################################
 
-int	mpl3115ConvertTemperature(mpl3115_t * psMPL3115) ;
-int	mpl3115ReadSP(mpl3115_t * psMPL3115, int Len) ;
-int	mpl3115WriteSP(mpl3115_t * psMPL3115) ;
-int	mpl3115WriteEE(mpl3115_t * psMPL3115) ;
+int	mpl3115ConvertTemperature(mpl3115_t * psMPL3115);
+int	mpl3115ReadSP(mpl3115_t * psMPL3115, int Len);
+int	mpl3115WriteSP(mpl3115_t * psMPL3115);
+int	mpl3115WriteEE(mpl3115_t * psMPL3115);
 
-int	mpl3115Initialize(mpl3115_t * psMPL3115) ;
-int	mpl3115ResetConfig(mpl3115_t * psMPL3115) ;
-void mpl3115ReportAll(void) ;
+int	mpl3115Initialize(mpl3115_t * psMPL3115);
+int	mpl3115ResetConfig(mpl3115_t * psMPL3115);
+int mpl3115ReportAllreport * psR);
 
 // ##################################### I2C Task support ##########################################
 
-struct rule_t ;
+struct rule_t;
 int	mpl3115ConfigMode (struct rule_t *, int Xcur, int Xmax, int EI);
 int	mpl3115Identify(i2c_di_t * psI2C_DI);
 int	mpl3115Config(i2c_di_t * psI2C_DI);
 int	mpl3115ReConfig(i2c_di_t * psI2C_DI);
 int	mpl3115Diags(i2c_di_t * psI2C_DI);
 
-struct epw_t ;
+struct epw_t;
 int	mpl3115Sense(epw_t * psEWP);
 
 #ifdef __cplusplus
