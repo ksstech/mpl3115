@@ -311,7 +311,7 @@ int	mpl3115WriteEE(mpl3115_t * psMPL3115);
 
 int	mpl3115Initialize(mpl3115_t * psMPL3115);
 int	mpl3115ResetConfig(mpl3115_t * psMPL3115);
-int mpl3115ReportAllreport * psR);
+int mpl3115ReportAll(report_t * psR);
 
 // ##################################### I2C Task support ##########################################
 
