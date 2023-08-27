@@ -3,7 +3,7 @@
  * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
-#include "hal_config.h"
+#include "hal_variables.h"
 
 #if (halHAS_MPL3115 > 0)
 #include "mpl3115.h"
@@ -95,17 +95,20 @@ void mpl3115TimerHdlr(TimerHandle_t xTimer) {
 	halI2CM_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
 }
 
+void mpl3115SenseCB(void * pV) {
+	vTimerSetTimerID(sMPL3115.th, pV);
+	// delay required if sampling interval < 1000mSec
+	xTimerStart(sMPL3115.th, pdMS_TO_TICKS(mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS]));
+}
+
 /**
  * @brief	step 1: trigger A->D conversion with delay
  * @param 	pointer to endpoint to be read
  */
 int	mpl3115Sense(epw_t * psEWP) {
-	vTimerSetTimerID(sMPL3115.timer, (void *) psEWP);
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	u8_t Cmd = mpl3115STATUS;
-	// delay not really required if sampling interval >= 1000mSec
-	uint32_t Dly = mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS] ;
-	return halI2CM_Queue(sMPL3115.psI2C, i2cWT, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) sMPL3115.timer, (i2cq_p2_t) (uint32_t) Dly);
+	return halI2CM_Queue(sMPL3115.psI2C, i2cWC, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) mpl3115SenseCB, (i2cq_p2_t) (void *) psEWP);
 }
 #endif
 

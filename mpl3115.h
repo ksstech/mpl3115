@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <stdint.h>
-
+#include "hal_i2c_common.h"
 #include "endpoints.h"
-#include "hal_i2cm.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 	extern "C" {
@@ -17,7 +16,7 @@
 
 #define	mpl3115ADDR0				0x60				// SI7006/13/20/21 Addresses
 
-#define	mpl3115I2C_LOGIC			1					// 1=delay, 2=stretch, 3=stages
+#define	mpl3115I2C_LOGIC			3					// 1=delay, 2=stretch, 3=stages
 
 #define	MPL3115_T_SNS				1000
 
