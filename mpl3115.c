@@ -129,7 +129,7 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
 	sMPL3115.Reg.ctrl_reg1.OS = os;
 	int iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
 	IF_RETURN_X(iRV != erSUCCESS, iRV);
-	sMPL3115.Reg.ctrl_reg2.ST = step ;
+	sMPL3115.Reg.ctrl_reg2.ST = step;
 	return mpl3115WriteReg(mpl3115CTRL_REG2, sMPL3115.Reg.CTRL_REG2);
 }
 
@@ -151,7 +151,7 @@ int	mpl3115Identify(i2c_di_t * psI2C_DI) {
 		psI2C_DI->DevIdx 	= 0;
 	}
 	psI2C_DI->Test = 0;
-	return iRV ;
+	return iRV;
 }
 
 void mpl3115ConfigALT(epw_t * psEWP) {
@@ -185,7 +185,7 @@ int	mpl3115Config(i2c_di_t * psI2C_DI) {
 	sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
 	#endif
 	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
-	return erSUCCESS ;
+	return erSUCCESS;
 }
 
 int mpl3115ReConfig(i2c_di_t * psI2C_DI) { return erSUCCESS; }
@@ -224,7 +224,7 @@ int mpl3115ReportAll(report_t * psR) {
 	uint16_t U16 = (sMPL3115.Reg.BAR_IN_MSB << 8) | sMPL3115.Reg.BAR_IN_LSB;
 	iRV += wprintfx(psR, "\tBAR_IN: 0x%04X (%u)\r\n", U16, U16 << 1);
 
-	x32_t X32 ;
+	x32_t X32;
 	if (sMPL3115.Reg.ctrl_reg1.ALT)
 		X32.f32 = (float) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
 	else
