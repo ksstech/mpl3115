@@ -139,18 +139,18 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
  * device reset+register reads to ascertain exact device type
  * @return	erSUCCESS if supported device was detected, if not erFAILURE
  */
-int	mpl3115Identify(i2c_di_t * psI2C_DI) {
-	psI2C_DI->TRXmS	= 50;
-	psI2C_DI->CLKuS = 400;
-	psI2C_DI->Test = 1;
-	sMPL3115.psI2C = psI2C_DI;
+int	mpl3115Identify(i2c_di_t * psI2C) {
+	psI2C->TRXmS = 50;
+	psI2C->CLKuS = 400;
+	psI2C->Test = 1;
+	sMPL3115.psI2C = psI2C;
 	int iRV = mpl3115ReadReg(mpl3115WHOAMI, &sMPL3115.Reg.WHO_AM_I, 1);
 	if ((iRV == erSUCCESS) && (sMPL3115.Reg.WHO_AM_I == 0xC4)) {
-		psI2C_DI->Type		= i2cDEV_MPL3115;
-		psI2C_DI->Speed		= i2cSPEED_400;
-		psI2C_DI->DevIdx 	= 0;
+		psI2C->Type = i2cDEV_MPL3115;
+		psI2C->Speed = i2cSPEED_400;
+		psI2C->DevIdx = 0;
 	}
-	psI2C_DI->Test = 0;
+	psI2C->Test = 0;
 	return iRV;
 }
 
@@ -166,31 +166,30 @@ void mpl3115ConfigBMP(epw_t * psEWP) {
 	psEWP->uri = URI_MPL3115_VAL;
 }
 
-int	mpl3115Config(i2c_di_t * psI2C_DI) {
+int	mpl3115Config(i2c_di_t * psI2C) {
+	#if (mpl3115I2C_LOGIC == 3)
+	sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
+	#endif
+	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
+	return mpl3115ReConfig(psI2C);
+}
+
+int mpl3115ReConfig(i2c_di_t * psI2C) {
 	sMPL3115.Reg.pt_data_cfg.DREM = 1;
 	sMPL3115.Reg.pt_data_cfg.PDEFE = 1;
 	sMPL3115.Reg.pt_data_cfg.TDEFE = 1;
 	mpl3115WriteReg(mpl3115PT_DATA_CFG, sMPL3115.Reg.PT_DATA_CFG);
 	sMPL3115.Reg.ctrl_reg1.SBYB = 1;
 	mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
-
 	mpl3115ConfigALT(&table_work[URI_MPL3115_VAL]);		// default mode on reset
-
 	epw_t * psEWP = &table_work[URI_MPL3115_TMP];
 	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_TMP;
-
-	#if (mpl3115I2C_LOGIC == 3)
-	sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
-	#endif
-	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
 	return erSUCCESS;
 }
 
-int mpl3115ReConfig(i2c_di_t * psI2C_DI) { return erSUCCESS; }
-
-int	mpl3115Diags(i2c_di_t * psI2C_DI) { return erSUCCESS; }
+int	mpl3115Diags(i2c_di_t * psI2C) { return erSUCCESS; }
 
 // ######################################### Reporting #############################################
 
