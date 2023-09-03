@@ -39,12 +39,12 @@ mpl3115_t sMPL3115 = { 0 };
 // #################################### Local ONLY functions #######################################
 
 int mpl3115ReadReg(u8_t Reg, u8_t * pRxBuf, size_t RxLen) {
-	return halI2CM_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg), pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	return halI2C_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg), pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
 int mpl3115WriteReg(u8_t reg, u8_t val) {
 	u8_t u8Buf[2] = { reg, val };
-	return halI2CM_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
 #if (mpl3115I2C_LOGIC == 1)								// 1 step no wait
@@ -92,7 +92,7 @@ void mpl3115ReadCB(void * pvPara) {
  * @param 	(expired) timer handle
  */
 void mpl3115TimerHdlr(TimerHandle_t xTimer) {
-	halI2CM_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
+	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
 }
 
 void mpl3115SenseCB(void * pV) {
@@ -108,7 +108,7 @@ void mpl3115SenseCB(void * pV) {
 int	mpl3115Sense(epw_t * psEWP) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	u8_t Cmd = mpl3115STATUS;
-	return halI2CM_Queue(sMPL3115.psI2C, i2cWC, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) mpl3115SenseCB, (i2cq_p2_t) (void *) psEWP);
+	return halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) mpl3115SenseCB, (i2cq_p2_t) (void *) psEWP);
 }
 #endif
 
