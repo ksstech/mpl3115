@@ -6,9 +6,8 @@
 #include "hal_variables.h"
 
 #if (halHAS_MPL3115 > 0)
-#include "mpl3115.h"
+#include "hal_i2c_common.h"
 #include "endpoints.h"
-#include "options.h"
 #include "printfx.h"
 #include "rules.h"
 #include "syslog.h"
@@ -186,6 +185,7 @@ int mpl3115ReConfig(i2c_di_t * psI2C) {
 	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
 	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
 	psEWP->uri = URI_MPL3115_TMP;
+	xRtosSetDevice(devMASK_MPL3115);
 	return erSUCCESS;
 }
 
