@@ -1,6 +1,5 @@
 /*
- * mpl3115.c
- * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
+ * mpl3115.c - Copyright (c) 2022-23 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
 #include "hal_config.h"
@@ -48,16 +47,19 @@ int mpl3115WriteReg(u8_t reg, u8_t val) {
 	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
+#if (mpl3115I2C_LOGIC == 3)							// 3 stages
 /**
  * @brief	step 2: conversion timer expired, trigger sample read
  * @param 	(expired) timer handle
  */
 void mpl3115TimerHdlr(TimerHandle_t xTimer) {
-	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
+	IF_SYSTIMER_START(debugTIMING, stMPL3115);
+//	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
+	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, 6, (i2cq_p1_t) mpl3115SenseReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
+	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 }
 
-void mpl3115SenseCB(void * pV) {
-	vTimerSetTimerID(sMPL3115.th, pV);
+void mpl3115SenseTimerCB(void * pV) {
 	// delay required if sampling interval < 1000mSec
 	xTimerStart(sMPL3115.th, pdMS_TO_TICKS(mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS]));
 }
@@ -67,9 +69,12 @@ void mpl3115SenseCB(void * pV) {
  * @param 	pointer to endpoint to be read
  */
 int	mpl3115Sense(epw_t * psEWP) {
-	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	u8_t Cmd = mpl3115STATUS;
-	return halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) mpl3115SenseCB, (i2cq_p2_t) (void *) psEWP);
+	IF_SYSTIMER_START(debugTIMING, stMPL3115);
+	vTimerSetTimerID(sMPL3115.th, psEWP);
+	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, 1, NULL, 0, (i2cq_p1_t) mpl3115SenseTimerCB, (i2cq_p2_t) (void *) psEWP);
+	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
+	return iRV;
 }
 #endif
 
