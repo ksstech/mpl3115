@@ -141,17 +141,20 @@ int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
  * @return	erSUCCESS if supported device was detected, if not erFAILURE
  */
 int	mpl3115Identify(i2c_di_t * psI2C) {
-	psI2C->TRXmS = 50;
-	psI2C->CLKuS = 400;
-	psI2C->Test = 1;
 	sMPL3115.psI2C = psI2C;
+	psI2C->Type = i2cDEV_MPL3115;
+	psI2C->Speed = i2cSPEED_400;
+	psI2C->TObus = 25;
+	psI2C->Test = 1;
 	int iRV = mpl3115ReadReg(mpl3115WHOAMI, &sMPL3115.Reg.WHO_AM_I, 1);
-	if ((iRV == erSUCCESS) && (sMPL3115.Reg.WHO_AM_I == 0xC4)) {
-		psI2C->Type = i2cDEV_MPL3115;
-		psI2C->Speed = i2cSPEED_400;
-		psI2C->DevIdx = 0;
-	}
+	if (iRV < erSUCCESS) goto exit;
+	if (sMPL3115.Reg.WHO_AM_I != 0xC4) goto err_whoami;
+	psI2C->IDok = 1;
 	psI2C->Test = 0;
+	goto exit;
+err_whoami:
+	iRV = erINV_WHOAMI;
+exit: //RPL(" [iRV=%d] ", iRV);
 	return iRV;
 }
 
