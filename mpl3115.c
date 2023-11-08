@@ -3,11 +3,12 @@
  * Copyright 2022 Andre M. Maree / KSS Technologies (Pty) Ltd.
  */
 
-#include "hal_variables.h"
+#include "hal_config.h"
 
 #if (halHAS_MPL3115 > 0)
-#include "hal_i2c_common.h"
 #include "endpoints.h"
+#include "hal_i2c_common.h"
+#include "mpl3115.h"
 #include "printfx.h"
 #include "rules.h"
 #include "syslog.h"
@@ -26,10 +27,11 @@
 
 // ################################ Forward function declaration ###################################
 
+void mpl3115ReadCB(void *);
 
 // ######################################### Constants #############################################
 
-const uint16_t mpl3115Dly[] = { 6, 10, 18, 34, 66, 130, 258, 512 };
+const u16_t mpl3115Dly[] = { 6, 10, 18, 34, 66, 130, 258, 512 };
 
 // ###################################### Local variables ##########################################
 
@@ -224,16 +226,12 @@ int mpl3115ReportAll(report_t * psR) {
 	iRV += wprintfx(psR, "\tBAR_IN: 0x%04X (%u)\r\n", U16, U16 << 1);
 
 	x32_t X32;
-	if (sMPL3115.Reg.ctrl_reg1.ALT)
-		X32.f32 = (float) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
-	else
-		X32.f32 = (int16_t) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
+	if (sMPL3115.Reg.ctrl_reg1.ALT) X32.f32 = (float) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
+	else X32.f32 = (int16_t) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
 	iRV += wprintfx(psR, "\tP_TGT=%f(%s)  T_TGT=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_TGT);
 
-	if (sMPL3115.Reg.ctrl_reg1.ALT)
-		X32.f32 = (float) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
-	else
-		X32.f32 = (int16_t) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
+	if (sMPL3115.Reg.ctrl_reg1.ALT) X32.f32 = (float) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
+	else X32.f32 = (int16_t) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
 	iRV += wprintfx(psR, "\tP_WND=%f(%s)  T_WND=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_WND);
 
 	iRV += wprintfx(psR, "\tP_MIN=%f  T_MIN=%f\r\n",
@@ -262,4 +260,5 @@ int mpl3115ReportAll(report_t * psR) {
 	#endif
 	return iRV;
 }
+
 #endif
