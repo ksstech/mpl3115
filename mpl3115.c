@@ -48,46 +48,6 @@ int mpl3115WriteReg(u8_t reg, u8_t val) {
 	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
 }
 
-#if (mpl3115I2C_LOGIC == 1)								// 1 step no wait
-/**
- * @brief	simply read current values, expected it to be new/valid
- * @param 	pointer to endpoint to be read
- */
-int	mpl3115Sense(epw_t * psEWP) {
-	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-	int iRV = mpl3115ReadReg(mpl3115STATUS, (u8_t *) &sMPL3115.Reg, 6);
-	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	x64_t X64;
-	// Convert & update pressure/altitude sensor
-	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
-	vCV_SetValueRaw(&table_work[URI_MPL3115_VAL].var, X64);
-	// convert& update the temperature sensor
-	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_T_MSB << 8 | sMPL3115.Reg.OUT_T_LSB) / 256.0;
-	vCV_SetValueRaw(&table_work[URI_MPL3115_TMP].var, X64);
-	return iRV;
-}
-
-#elif (mpl3115I2C_LOGIC == 2)							// clock stretching
-
-	#error "Not supported"
-
-#elif (mpl3115I2C_LOGIC == 3)							// 3 stages
-
-/**
- * @brief	step 3: sample read, convert  store
- * @param 	Expired timer handle
- */
-void mpl3115ReadCB(void * pvPara) {
-	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
-	x64_t X64;
-	// Convert & update pressure/altitude sensor
-	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_P_MSB << 16 | sMPL3115.Reg.OUT_P_CSB << 8 | sMPL3115.Reg.OUT_P_LSB) / 64.0;
-	vCV_SetValueRaw(&table_work[URI_MPL3115_VAL].var, X64);
-	// convert& update the temperature sensor
-	X64.x32[0].f32 = (float) (sMPL3115.Reg.OUT_T_MSB << 8 | sMPL3115.Reg.OUT_T_LSB) / 256.0;
-	vCV_SetValueRaw(&table_work[URI_MPL3115_TMP].var, X64);
-}
-
 /**
  * @brief	step 2: conversion timer expired, trigger sample read
  * @param 	(expired) timer handle
@@ -112,27 +72,6 @@ int	mpl3115Sense(epw_t * psEWP) {
 	return halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, sizeof(Cmd), &sMPL3115.Reg.STATUS, 6, (i2cq_p1_t) mpl3115SenseCB, (i2cq_p2_t) (void *) psEWP);
 }
 #endif
-
-// ################################ Rules configuration support ####################################
-
-int	mpl3115ConfigMode (struct rule_t * psR, int Xcur, int Xmax, int EI) {
-	// mode /mpl3115 idx mode os Tstep [fifo] [event]
-	u8_t AI = psR->ActIdx;
-	i32_t mode = psR->para.x32[AI][0].i32;
-	i32_t os = psR->para.x32[AI][1].i32;				// OverSampling 0 = 2^0 ... 2^7 ie 128
-	i32_t step = psR->para.x32[AI][2].i32;				// Auto Acquire time 1 -> 2^15 ie 9:06:00.8s
-	IF_P(debugTRACK && ioB1GET(dbgMode), "MODE 'MPL3115' Xcur=%d Xmax=%d mode=%ld os=%ld step=%ld\r\n", Xcur, Xmax, mode, os, step);
-
-	if (OUTSIDE(0, mode, 1) || OUTSIDE(0, os, 7) || OUTSIDE(0, step, 15))
-		RETURN_MX("Invalid Resolution or Heater value", erINV_PARA);
-
-	sMPL3115.Reg.ctrl_reg1.ALT = mode;
-	sMPL3115.Reg.ctrl_reg1.OS = os;
-	int iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
-	IF_RETURN_X(iRV != erSUCCESS, iRV);
-	sMPL3115.Reg.ctrl_reg2.ST = step;
-	return mpl3115WriteReg(mpl3115CTRL_REG2, sMPL3115.Reg.CTRL_REG2);
-}
 
 // ################### Identification, Diagnostics & Configuration functions #######################
 
