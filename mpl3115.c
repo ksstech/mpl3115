@@ -155,40 +155,36 @@ int	mpl3115Identify(i2c_di_t * psI2C) {
 	return iRV;
 }
 
-void mpl3115ConfigALT(epw_t * psEWP) {
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
-	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
-	psEWP->uri = URI_MPL3115_VAL;
-}
-
-void mpl3115ConfigBMP(epw_t * psEWP) {
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
-	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
-	psEWP->uri = URI_MPL3115_VAL;
-}
-
 int	mpl3115Config(i2c_di_t * psI2C) {
-	#if (mpl3115I2C_LOGIC == 3)
-	sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
-	#endif
-	IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
-	return mpl3115ReConfig(psI2C);
-}
+	if (!psI2C->IDok) return erINV_STATE;
 
-int mpl3115ReConfig(i2c_di_t * psI2C) {
-	sMPL3115.Reg.pt_data_cfg.DREM = 1;
-	sMPL3115.Reg.pt_data_cfg.PDEFE = 1;
-	sMPL3115.Reg.pt_data_cfg.TDEFE = 1;
-	mpl3115WriteReg(mpl3115PT_DATA_CFG, sMPL3115.Reg.PT_DATA_CFG);
+	psI2C->CFGok = 0;
+	sMPL3115.Reg.pt_data_cfg.DREM = 1;					// Data Ready Event Mode
+	sMPL3115.Reg.pt_data_cfg.PDEFE = 1;					// Pressure Data Event Flag Enable
+	sMPL3115.Reg.pt_data_cfg.TDEFE = 1;					// Temperature Data Event Flag Enable
+	int iRV = mpl3115WriteReg(mpl3115PT_DATA_CFG, sMPL3115.Reg.PT_DATA_CFG);
+	if (iRV < erSUCCESS) goto exit;
+
+	sMPL3115.Reg.ctrl_reg1.SBYB = 0;					// Put into standby mode
+	iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
+	if (iRV < erSUCCESS) goto exit;
+
+	sMPL3115.Reg.ctrl_reg1.ALT = 1;						// Change pressure to altitude readings
 	sMPL3115.Reg.ctrl_reg1.SBYB = 1;
-	mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
-	mpl3115ConfigALT(&table_work[URI_MPL3115_VAL]);		// default mode on reset
-	epw_t * psEWP = &table_work[URI_MPL3115_TMP];
-	psEWP->var.def = SETDEF_CVAR(0, 0, vtVALUE, cvF32, 1, 0);
-	psEWP->Tsns = psEWP->Rsns = MPL3115_T_SNS;
-	psEWP->uri = URI_MPL3115_TMP;
-	xRtosSetDevice(devMASK_MPL3115);
-	return erSUCCESS;
+	iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
+	if (iRV < erSUCCESS) goto exit;
+	psI2C->CFGok = 1;
+
+	// once off init....
+	if (!psI2C->CFGerr) {
+		IF_SYSTIMER_INIT(debugTIMING, stMPL3115, stMICROS, "MPL3115", 10, 1000);
+		#if (mpl3115I2C_LOGIC == 3)
+		sMPL3115.th = xTimerCreateStatic("mpl3115", pdMS_TO_TICKS(5), pdFALSE, NULL, mpl3115TimerHdlr, &sMPL3115.ts);
+		IF_myASSERT(debugRESULT, sMPL3115.th);
+		#endif
+	}
+exit: //RPL("iRV=%d  ", iRV);
+	return iRV;
 }
 
 int	mpl3115Diags(i2c_di_t * psI2C) { return erSUCCESS; }
