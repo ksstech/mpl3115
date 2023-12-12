@@ -5,7 +5,7 @@
 #pragma once
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
 
 // ########################################### Macros ##############################################
@@ -322,5 +322,5 @@ struct epw_t;
 int	mpl3115Sense(struct epw_t * psEWP);
 
 #ifdef __cplusplus
-	}
+}
 #endif
