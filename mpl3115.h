@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#include "struct_union.h"
+
 // ########################################### Macros ##############################################
 
 #define	mpl3115ADDR0				0x60				// SI7006/13/20/21 Addresses
