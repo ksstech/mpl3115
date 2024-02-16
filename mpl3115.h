@@ -1,6 +1,4 @@
-/*
- * mpl3115.h - Copyright (c) 2022-24 Andre M. Maree/KSS Technologies (Pty) Ltd.
- */
+// mpl3115.h - Copyright (c) 2022-24 Andre M. Maree/KSS Technologies (Pty) Ltd.
 
 #pragma once
 
@@ -8,6 +6,7 @@
 extern "C" {
 #endif
 
+#include "FreeRTOS_Support.h"
 #include "struct_union.h"
 
 // ########################################### Macros ##############################################
