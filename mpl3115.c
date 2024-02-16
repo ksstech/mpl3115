@@ -59,7 +59,7 @@ void mpl3115TimerHdlr(TimerHandle_t xTimer) {
 }
 
 void mpl3115SenseTimerCB(void * pV) {
-	// delay required if sampling interval < 1000mSec
+	// delay if interval < 1000mSec
 	xTimerStart(sMPL3115.th, pdMS_TO_TICKS(mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS]));
 }
 
