@@ -65,6 +65,7 @@ void mpl3115TimerHdlr(TimerHandle_t xTimer) {
 }
 
 void mpl3115SenseTimerCB(void * pV) {
+	vTimerSetTimerID(sMPL3115.th, pV);
 	// delay if interval < 1000mSec
 	xTimerStart(sMPL3115.th, pdMS_TO_TICKS(mpl3115Dly[sMPL3115.Reg.ctrl_reg1.OS]));
 }
@@ -76,7 +77,6 @@ void mpl3115SenseTimerCB(void * pV) {
 int	mpl3115Sense(epw_t * psEWP) {
 	u8_t Cmd = mpl3115STATUS;
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-	vTimerSetTimerID(sMPL3115.th, psEWP);
 	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, 1, NULL, 0, (i2cq_p1_t) mpl3115SenseTimerCB, (i2cq_p2_t) (void *) psEWP);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 	return iRV;
