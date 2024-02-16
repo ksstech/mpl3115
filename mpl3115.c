@@ -38,12 +38,18 @@ mpl3115_t sMPL3115 = { 0 };
 // #################################### Local ONLY functions #######################################
 
 int mpl3115ReadReg(u8_t Reg, u8_t * pRxBuf, size_t RxLen) {
-	return halI2C_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg), pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	IF_SYSTIMER_START(debugTIMING, stMPL3115);
+	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cWR_B, &Reg, sizeof(Reg), pRxBuf, RxLen, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
+	return iRV;
 }
 
 int mpl3115WriteReg(u8_t reg, u8_t val) {
+	IF_SYSTIMER_START(debugTIMING, stMPL3115);
 	u8_t u8Buf[2] = { reg, val };
-	return halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cW_B, u8Buf, sizeof(u8Buf), NULL, 0, (i2cq_p1_t) NULL, (i2cq_p2_t) NULL);
+	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
+	return iRV;
 }
 
 #if (mpl3115I2C_LOGIC == 3)							// 3 stages
