@@ -59,8 +59,9 @@ int mpl3115WriteReg(u8_t reg, u8_t val) {
  */
 void mpl3115TimerHdlr(TimerHandle_t xTimer) {
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-//	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, SO_MEM(mpl3115_t, u8Buf), (i2cq_p1_t) mpl3115ReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
-	halI2C_Queue(sMPL3115.psI2C, i2cRC_B, NULL, 0, sMPL3115.u8Buf, 6, (i2cq_p1_t) mpl3115SenseReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
+	halI2C_Queue(sMPL3115.psI2C, ioB1GET(dbgMPL3115) ? i2cRC_BD : i2cRC_B, NULL, 0,
+				sMPL3115.u8Buf, ioB1GET(dbgMPL3115) ? SO_MEM(mpl3115_t, u8Buf) : 6,
+				(i2cq_p1_t) mpl3115SenseReadCB, (i2cq_p2_t) (void *) pvTimerGetTimerID(xTimer));
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 }
 
