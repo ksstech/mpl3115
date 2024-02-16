@@ -121,7 +121,8 @@ int	mpl3115Config(i2c_di_t * psI2C) {
 	iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
 	if (iRV < erSUCCESS) goto exit;
 
-	sMPL3115.Reg.ctrl_reg1.ALT = 1;						// Change pressure to altitude readings
+	if (ioB1GET(altMPL3115))
+		sMPL3115.Reg.ctrl_reg1.ALT = 1;					// Change pressure to altitude readings
 	sMPL3115.Reg.ctrl_reg1.SBYB = 1;
 	iRV = mpl3115WriteReg(mpl3115CTRL_REG1, sMPL3115.Reg.CTRL_REG1);
 	if (iRV < erSUCCESS) goto exit;
