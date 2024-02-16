@@ -75,9 +75,9 @@ void mpl3115SenseTimerCB(void * pV) {
  * @param 	pointer to endpoint to be read
  */
 int	mpl3115Sense(epw_t * psEWP) {
-	u8_t Cmd = mpl3115STATUS;
+	const u8_t Cmd = mpl3115STATUS;
 	IF_SYSTIMER_START(debugTIMING, stMPL3115);
-	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cWC, &Cmd, 1, NULL, 0, (i2cq_p1_t) mpl3115SenseTimerCB, (i2cq_p2_t) (void *) psEWP);
+	int iRV = halI2C_Queue(sMPL3115.psI2C, i2cWC, (u8_t *)&Cmd, 1, NULL, 0, (i2cq_p1_t) mpl3115SenseTimerCB, (i2cq_p2_t) (void *) psEWP);
 	IF_SYSTIMER_STOP(debugTIMING, stMPL3115);
 	return iRV;
 }
