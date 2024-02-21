@@ -12,9 +12,7 @@ extern "C" {
 // ########################################### Macros ##############################################
 
 #define	mpl3115ADDR0				0x60				// SI7006/13/20/21 Addresses
-
 #define	mpl3115I2C_LOGIC			3					// 1=delay, 2=stretch, 3=stages
-
 #define	MPL3115_T_SNS				1000
 
 // ######################################## Enumerations ###########################################
@@ -194,25 +192,13 @@ typedef struct __attribute__((packed)) {
 		};
 	};
 	u8_t WHO_AM_I;
-	union {							// F_STATUS
-		mpl3115_f_status_t f_status;
-		u8_t F_STATUS;
-	};
+	union { mpl3115_f_status_t f_status; u8_t F_STATUS; };
 	u8_t F_DATA;
-	union {							// F_SETUP
-		mpl3115_f_setup_t f_setup;
-		u8_t F_SETUP;
-	};
+	union {	mpl3115_f_setup_t f_setup; u8_t F_SETUP; };
 	u8_t TIME_DLY;
 	u8_t SYSMOD;
-	union {							// INT_SOURCE
-		mpl3115_int_source_t int_source;
-		u8_t INT_SOURCE;
-	};
-	union {							// PT_DATA_CFG
-		mpl3115_pt_data_t pt_data_cfg;
-		u8_t PT_DATA_CFG;
-	};
+	union {	mpl3115_int_source_t int_source; u8_t INT_SOURCE; };
+	union { mpl3115_pt_data_t pt_data_cfg; u8_t PT_DATA_CFG; };
 	u8_t BAR_IN_MSB;
 	u8_t BAR_IN_LSB;
 	u8_t P_TGT_MSB;
@@ -251,26 +237,11 @@ typedef struct __attribute__((packed)) {
 			u8_t T_MAX_LSB;
 		};
 	};
-	union {							// CTRL_REG1
-		mpl3115_ctrl_reg1_t ctrl_reg1;
-		u8_t CTRL_REG1;
-	};
-	union {							// CTRL_REG2
-		mpl3115_ctrl_reg2_t ctrl_reg2;
-		u8_t CTRL_REG2;
-	};
-	union {							// CTRL_REG3
-		mpl3115_ctrl_reg3_t ctrl_reg3;
-		u8_t CTRL_REG3;
-	};
-	union {							// CTRL_REG4
-		mpl3115_ctrl_reg4_t ctrl_reg4;
-		u8_t CTRL_REG4;
-	};
-	union {							// CTRL_REG5
-		mpl3115_ctrl_reg5_t ctrl_reg5;
-		u8_t CTRL_REG5;
-	};
+	union { mpl3115_ctrl_reg1_t ctrl_reg1; u8_t CTRL_REG1; };
+	union { mpl3115_ctrl_reg2_t ctrl_reg2; u8_t CTRL_REG2; };
+	union {	mpl3115_ctrl_reg3_t ctrl_reg3; u8_t CTRL_REG3; };
+	union {	mpl3115_ctrl_reg4_t ctrl_reg4; u8_t CTRL_REG4; };
+	union {	mpl3115_ctrl_reg5_t ctrl_reg5; u8_t CTRL_REG5; };
 	u8_t OFF_P;
 	u8_t OFF_T;
 	u8_t OFF_H;
@@ -278,26 +249,21 @@ typedef struct __attribute__((packed)) {
 DUMB_STATIC_ASSERT(sizeof(mpl3115_reg_t) == 46);
 
 struct i2c_di_t;
-typedef struct __attribute__((packed)) {				// SI70006/13/14/20/xx TMP & RH sensors
-	struct i2c_di_t * psI2C;		// 4 bytes
+typedef struct __attribute__((packed)) {
+	struct i2c_di_t * psI2C;
 	SemaphoreHandle_t mux;
 	#if (mpl3115I2C_LOGIC == 3)
 	TimerHandle_t th;
 	StaticTimer_t ts;
+	#define SIZE_EXTRA				(sizeof(StaticTimer_t) + sizeof(TimerHandle_t))
+	#else
+	#define SIZE_EXTRA				0
 	#endif
-	union {
-		mpl3115_reg_t Reg;
-		u8_t u8Buf[sizeof(mpl3115_reg_t)];
-	};
+	union { mpl3115_reg_t Reg; u8_t u8Buf[sizeof(mpl3115_reg_t)]; };
 	u8_t spare[2];
 } mpl3115_t;
-#if (mpl3115I2C_LOGIC == 3)
-	DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == 104);
-#else
-	DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == 56);
-#endif
-
-struct report_t;
+//DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == (56 + SIZE_EXTRA));
+__static_assert__(sizeof(mpl3115_t) == (56 + SIZE_EXTRA));
 
 // ###################################### Public variables #########################################
 
@@ -308,7 +274,7 @@ extern const u16_t mpl3115Dly[];
 
 int mpl3115ReadReg(u8_t Reg, u8_t * pRxBuf, size_t RxLen);
 int mpl3115WriteReg(u8_t reg, u8_t val);
-
+struct report_t;
 int mpl3115ReportAll(struct report_t * psR);
 
 // ##################################### I2C Task support ##########################################
