@@ -262,8 +262,7 @@ typedef struct __attribute__((packed)) {
 	union { mpl3115_reg_t Reg; u8_t u8Buf[sizeof(mpl3115_reg_t)]; };
 	u8_t spare[2];
 } mpl3115_t;
-//DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == (56 + SIZE_EXTRA));
-__static_assert__(sizeof(mpl3115_t) == (56 + SIZE_EXTRA));
+DUMB_STATIC_ASSERT(sizeof(mpl3115_t) == (56 + SIZE_EXTRA));
 
 // ###################################### Public variables #########################################
 
