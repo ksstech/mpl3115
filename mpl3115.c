@@ -148,62 +148,62 @@ int	mpl3115Diags(i2c_di_t * psI2C) { return erSUCCESS; }
 int mpl3115ReportAll(report_t * psR) {
 	int iRV = halI2C_DeviceReport(psR, sMPL3115.psI2C);
 	mpl3115ReadReg(mpl3115DR_STATUS, (u8_t *) &sMPL3115.Reg.DR_STATUS, 1);
-	iRV += wprintfx(psR, "\tDR_STATUS: 0x%02X  PTOW=%d  POW=%d  TOW=%d  PTDR=%d  PDR=%d  TDR=%d\r\n", sMPL3115.Reg.DR_STATUS,
+	iRV += xReport(psR, "\tDR_STATUS: 0x%02X  PTOW=%d  POW=%d  TOW=%d  PTDR=%d  PDR=%d  TDR=%d\r\n", sMPL3115.Reg.DR_STATUS,
 		sMPL3115.Reg.dr_status.PTOW, sMPL3115.Reg.dr_status.POW, sMPL3115.Reg.dr_status.TOW,
 		sMPL3115.Reg.dr_status.PTDR, sMPL3115.Reg.dr_status.PDR, sMPL3115.Reg.dr_status.TDR);
 
 	mpl3115ReadReg(mpl3115OUT_P_DELTA_MSB, (u8_t *) &sMPL3115.Reg.OUT_P_DELTA_MSB, 5);
-	iRV += wprintfx(psR, "\tOUT_P_D=%f  OUT_T_D=%f\r\n",
+	iRV += xReport(psR, "\tOUT_P_D=%f  OUT_T_D=%f\r\n",
 		(float) (sMPL3115.Reg.OUT_P_DELTA_MSB << 16 | sMPL3115.Reg.OUT_P_DELTA_CSB << 8 | sMPL3115.Reg.OUT_P_DELTA_LSB) / 64.0,
 		(float) (sMPL3115.Reg.OUT_T_DELTA_MSB << 8 | sMPL3115.Reg.OUT_T_DELTA_LSB) / 256.0);
 
 	mpl3115ReadReg(mpl3115F_STATUS, (u8_t *) &sMPL3115.Reg.F_STATUS, 1);
-	iRV += wprintfx(psR, "\tF_STATUS: 0x%02X  OVF=%d  WMRK=%d  CNT=%d\r\n", sMPL3115.Reg.F_STATUS,
+	iRV += xReport(psR, "\tF_STATUS: 0x%02X  OVF=%d  WMRK=%d  CNT=%d\r\n", sMPL3115.Reg.F_STATUS,
 		sMPL3115.Reg.f_status.F_OVF, sMPL3115.Reg.f_status.F_WMRK_FLAG, sMPL3115.Reg.f_status.F_CNT);
 
 	mpl3115ReadReg(mpl3115F_SETUP, (u8_t *) &sMPL3115.Reg.F_SETUP, 1);
-	iRV += wprintfx(psR, "\tF_SETUP: 0x%02X  MODE=%d  WMRK=%d\r\n", sMPL3115.Reg.F_SETUP,
+	iRV += xReport(psR, "\tF_SETUP: 0x%02X  MODE=%d  WMRK=%d\r\n", sMPL3115.Reg.F_SETUP,
 		sMPL3115.Reg.f_setup.F_MODE, sMPL3115.Reg.f_setup.F_WMRK);
 
 	mpl3115ReadReg(mpl3115TIME_DLY, (u8_t *) &sMPL3115.Reg.TIME_DLY, 30);
-	iRV += wprintfx(psR, "\tTIME_DLY: %d\r\n", sMPL3115.Reg.TIME_DLY);
-	iRV += wprintfx(psR, "\tSYSMOD: %sabled\r\n", sMPL3115.Reg.SYSMOD ? "EN" : "DIS");
+	iRV += xReport(psR, "\tTIME_DLY: %d\r\n", sMPL3115.Reg.TIME_DLY);
+	iRV += xReport(psR, "\tSYSMOD: %sabled\r\n", sMPL3115.Reg.SYSMOD ? "EN" : "DIS");
 
-	iRV += wprintfx(psR, "\tINT_SOURCE: 0x%02X\r\n", sMPL3115.Reg.INT_SOURCE);
-	iRV += wprintfx(psR, "\tPT_DATA_CFG: 0x%02X  DREM=%d  PDEFE=%d  TDEFE=%d\r\n", sMPL3115.Reg.PT_DATA_CFG,
+	iRV += xReport(psR, "\tINT_SOURCE: 0x%02X\r\n", sMPL3115.Reg.INT_SOURCE);
+	iRV += xReport(psR, "\tPT_DATA_CFG: 0x%02X  DREM=%d  PDEFE=%d  TDEFE=%d\r\n", sMPL3115.Reg.PT_DATA_CFG,
 		sMPL3115.Reg.pt_data_cfg.DREM, sMPL3115.Reg.pt_data_cfg.PDEFE, sMPL3115.Reg.pt_data_cfg.TDEFE);
 	uint16_t U16 = (sMPL3115.Reg.BAR_IN_MSB << 8) | sMPL3115.Reg.BAR_IN_LSB;
-	iRV += wprintfx(psR, "\tBAR_IN: 0x%04X (%u)\r\n", U16, U16 << 1);
+	iRV += xReport(psR, "\tBAR_IN: 0x%04X (%u)\r\n", U16, U16 << 1);
 
 	x32_t X32;
 	if (sMPL3115.Reg.ctrl_reg1.ALT) X32.f32 = (float) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
 	else X32.f32 = (int16_t) (sMPL3115.Reg.P_TGT_MSB << 8 | sMPL3115.Reg.P_TGT_LSB);
-	iRV += wprintfx(psR, "\tP_TGT=%f(%s)  T_TGT=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_TGT);
+	iRV += xReport(psR, "\tP_TGT=%f(%s)  T_TGT=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_TGT);
 
 	if (sMPL3115.Reg.ctrl_reg1.ALT) X32.f32 = (float) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
 	else X32.f32 = (int16_t) (sMPL3115.Reg.P_WND_MSB << 8 | sMPL3115.Reg.P_WND_LSB);
-	iRV += wprintfx(psR, "\tP_WND=%f(%s)  T_WND=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_WND);
+	iRV += xReport(psR, "\tP_WND=%f(%s)  T_WND=%d(degC)\r\n", X32.f32, sMPL3115.Reg.ctrl_reg1.ALT ? "m" : "Pa", sMPL3115.Reg.T_WND);
 
-	iRV += wprintfx(psR, "\tP_MIN=%f  T_MIN=%f\r\n",
+	iRV += xReport(psR, "\tP_MIN=%f  T_MIN=%f\r\n",
 		(float) (sMPL3115.Reg.P_MIN_MSB << 16 | sMPL3115.Reg.P_MIN_CSB << 8 | sMPL3115.Reg.P_MIN_LSB) / 64.0,
 		(float) (sMPL3115.Reg.T_MIN_MSB << 8 | sMPL3115.Reg.T_MIN_LSB) / 256.0);
 
-	iRV += wprintfx(psR, "\tP_MAX=%f  T_MAX=%f\r\n",
+	iRV += xReport(psR, "\tP_MAX=%f  T_MAX=%f\r\n",
 		(float) (sMPL3115.Reg.P_MAX_MSB << 16 | sMPL3115.Reg.P_MAX_CSB << 8 | sMPL3115.Reg.P_MAX_LSB) / 64.0,
 		(float) (sMPL3115.Reg.T_MAX_MSB << 8 | sMPL3115.Reg.T_MAX_LSB) / 256.0);
 
-	iRV += wprintfx(psR, "\tCTRL_REG1: 0x%02X  ALT=%d  OS=%d  RST=%d  OST=%d  SBYB=%d\r\n", sMPL3115.Reg.CTRL_REG1,
+	iRV += xReport(psR, "\tCTRL_REG1: 0x%02X  ALT=%d  OS=%d  RST=%d  OST=%d  SBYB=%d\r\n", sMPL3115.Reg.CTRL_REG1,
 		sMPL3115.Reg.ctrl_reg1.ALT, sMPL3115.Reg.ctrl_reg1.OS, sMPL3115.Reg.ctrl_reg1.RST,
 		sMPL3115.Reg.ctrl_reg1.OST, sMPL3115.Reg.ctrl_reg1.SBYB);
-	iRV += wprintfx(psR, "\tCTRL_REG2: 0x%02X  LOAD_OUTPUT=%d  ALARM_SEL=%d  ST=%d\r\n", sMPL3115.Reg.CTRL_REG2,
+	iRV += xReport(psR, "\tCTRL_REG2: 0x%02X  LOAD_OUTPUT=%d  ALARM_SEL=%d  ST=%d\r\n", sMPL3115.Reg.CTRL_REG2,
 		sMPL3115.Reg.ctrl_reg2.LOAD_OUTPUT, sMPL3115.Reg.ctrl_reg2.ALARM_SEL, sMPL3115.Reg.ctrl_reg2.ST);
-	iRV += wprintfx(psR, "\tCTRL_REG3: 0x%02X  IPOL1=%d  PP_OD1=%d  IPOL2=%d  PP_OD2=%d\r\n", sMPL3115.Reg.CTRL_REG3,
+	iRV += xReport(psR, "\tCTRL_REG3: 0x%02X  IPOL1=%d  PP_OD1=%d  IPOL2=%d  PP_OD2=%d\r\n", sMPL3115.Reg.CTRL_REG3,
 		sMPL3115.Reg.ctrl_reg3.IPOL1, sMPL3115.Reg.ctrl_reg3.PP_OD1,
 		sMPL3115.Reg.ctrl_reg3.IPOL2, sMPL3115.Reg.ctrl_reg3.PP_OD2);
-	iRV += wprintfx(psR, "\tCTRL_REG4=0x%02X   CTRL_REG5=0x%02X\r\n",
+	iRV += xReport(psR, "\tCTRL_REG4=0x%02X   CTRL_REG5=0x%02X\r\n",
 		sMPL3115.Reg.CTRL_REG4, sMPL3115.Reg.CTRL_REG5);
 
-	iRV += wprintfx(psR, "\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\r\n",
+	iRV += xReport(psR, "\tOFF_P=0x%02X   OFF_T=0x%02X   OFF_H=0x%02X\r\n",
 		sMPL3115.Reg.OFF_P, sMPL3115.Reg.OFF_T, sMPL3115.Reg.OFF_H);
 	#if (mpl3115I2C_LOGIC == 3)
 	iRV += xRtosReportTimer(psR, sMPL3115.th);
