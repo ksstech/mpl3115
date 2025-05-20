@@ -6,8 +6,6 @@
 #include "endpoints.h"
 #include "hal_i2c_common.h"
 #include "mpl3115.h"
-#include "hal_options.h"
-#include "report.h"
 #include "rules.h"
 #include "syslog.h"
 #include "systiming.h"					// timing debugging
